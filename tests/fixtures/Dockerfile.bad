@@ -1,0 +1,7 @@
+FROM python:latest
+ENV API_KEY=supersecret123
+ENV DB_PASSWORD=admin
+RUN apt-get update && apt-get install -y curl wget
+COPY . .
+EXPOSE 22 80 443
+CMD ["python", "app.py"]

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prithvi - Container Security Scanner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Prithvi</h1>
+            <p class="tagline">Container Security Scanner</p>
+            <p class="mythology">Named after the Hindu Earth Goddess — protecting the foundation of your infrastructure</p>
+            <div class="badges">
+                <a href="https://github.com/MukundaKatta/prithvi" class="badge">GitHub</a>
+                <a href="#install" class="badge badge-primary">Get Started</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="features">
+            <h2>Features</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Dockerfile Analysis</h3>
+                    <p>7 built-in rules checking for root users, unpinned tags, hardcoded secrets, privileged ports, apt best practices, broad COPY statements, and missing healthchecks.</p>
+                </div>
+                <div class="card">
+                    <h3>Image Scanning</h3>
+                    <p>Inspect container images for oversized layers, root execution, environment secrets, and known CVE vulnerabilities via local SQLite database.</p>
+                </div>
+                <div class="card">
+                    <h3>Multiple Report Formats</h3>
+                    <p>Generate reports as rich CLI tables, JSON for CI/CD integration, or self-contained HTML reports with severity badges and remediation guidance.</p>
+                </div>
+                <div class="card">
+                    <h3>CI/CD Ready</h3>
+                    <p>Non-zero exit codes on HIGH+ findings make Prithvi a drop-in security gate for your CI pipelines. Configure severity thresholds and rule exclusions.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="install">
+            <h2>Installation</h2>
+            <pre><code>git clone https://github.com/MukundaKatta/prithvi.git
+cd prithvi
+pip install -e ".[dev]"</code></pre>
+        </section>
+
+        <section id="usage">
+            <h2>Quick Start</h2>
+            <pre><code># Scan a Dockerfile
+prithvi scan dockerfile ./Dockerfile
+
+# JSON output for CI pipelines
+prithvi scan dockerfile ./Dockerfile --format json
+
+# HTML report
+prithvi scan dockerfile ./Dockerfile --format html --output report.html
+
+# Only show HIGH and CRITICAL findings
+prithvi scan dockerfile ./Dockerfile --severity-threshold HIGH
+
+# Ignore specific rules
+prithvi scan dockerfile ./Dockerfile --ignore DSC-004 --ignore DSC-007
+
+# List all available rules
+prithvi rules</code></pre>
+        </section>
+
+        <section id="rules">
+            <h2>Security Rules</h2>
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Severity</th><th>Rule</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>DSC-001</td><td><span class="sev high">HIGH</span></td><td>Container should not run as root</td></tr>
+                    <tr><td>DSC-002</td><td><span class="sev medium">MEDIUM</span></td><td>Use pinned image tags</td></tr>
+                    <tr><td>DSC-003</td><td><span class="sev critical">CRITICAL</span></td><td>No secrets in ENV/ARG</td></tr>
+                    <tr><td>DSC-004</td><td><span class="sev low">LOW</span></td><td>Avoid privileged ports</td></tr>
+                    <tr><td>DSC-005</td><td><span class="sev medium">MEDIUM</span></td><td>apt-get best practices</td></tr>
+                    <tr><td>DSC-006</td><td><span class="sev medium">MEDIUM</span></td><td>Avoid broad COPY</td></tr>
+                    <tr><td>DSC-007</td><td><span class="sev low">LOW</span></td><td>Include HEALTHCHECK</td></tr>
+                    <tr><td>IMG-001</td><td><span class="sev low">LOW</span></td><td>Oversized image layer</td></tr>
+                    <tr><td>IMG-002</td><td><span class="sev high">HIGH</span></td><td>Image runs as root</td></tr>
+                    <tr><td>IMG-003</td><td><span class="sev critical">CRITICAL</span></td><td>Secrets in image environment</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="architecture">
+            <h2>Architecture</h2>
+            <pre><code>prithvi/
+├── src/prithvi/
+│   ├── cli.py              # Click CLI entry point
+│   ├── models.py           # Finding, Severity, ScanResult
+│   ├── config.py           # Configuration management
+│   ├── dockerfile/         # Dockerfile analysis
+│   │   ├── parser.py       # Instruction-level parser
+│   │   ├── analyzer.py     # Analysis orchestrator
+│   │   └── rules/          # 7 security rules (DSC-001 to DSC-007)
+│   ├── image/              # Container image analysis
+│   │   ├── inspector.py    # Tarball + daemon inspection
+│   │   ├── layer.py        # Layer-level checks
+│   │   ├── packages.py     # OS package extraction
+│   │   └── analyzer.py     # Image scan orchestrator
+│   ├── cve/                # CVE vulnerability database
+│   │   ├── database.py     # SQLite storage
+│   │   └── matcher.py      # Package-CVE matching
+│   └── reporting/          # Output formatters
+│       ├── json_reporter.py
+│       ├── table_reporter.py
+│       └── html_reporter.py
+└── tests/                  # Comprehensive test suite</code></pre>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Prithvi &copy; 2024 — MIT License</p>
+        </div>
+    </footer>
+</body>
+</html>
