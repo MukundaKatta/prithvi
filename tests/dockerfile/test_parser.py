@@ -23,7 +23,11 @@ class TestParser:
         assert len(instructions) == 2
 
     def test_continuation_lines(self):
-        content = "RUN apt-get update && \\\n    apt-get install -y curl && \\\n    rm -rf /var/lib/apt/lists/*\n"
+        content = (
+            "RUN apt-get update && \\\n"
+            "    apt-get install -y curl && \\\n"
+            "    rm -rf /var/lib/apt/lists/*\n"
+        )
         instructions = parse_dockerfile(content)
         assert len(instructions) == 1
         assert "apt-get update" in instructions[0].arguments

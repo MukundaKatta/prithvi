@@ -37,7 +37,11 @@ class AptBestPracticesRule(BaseRule):
                     rule_id=self.rule_id,
                     title="Missing --no-install-recommends",
                     severity=self.severity,
-                    description="apt-get install without --no-install-recommends installs unnecessary packages.",
+                    description=(
+                        "apt-get install without "
+                        "--no-install-recommends installs "
+                        "unnecessary packages."
+                    ),
                     location=f"{filepath}:{instr.line_number}",
                     remediation=self.remediation,
                 ))
@@ -47,7 +51,10 @@ class AptBestPracticesRule(BaseRule):
                     rule_id=self.rule_id,
                     title="Missing apt cache cleanup",
                     severity=Severity.LOW,
-                    description="apt cache not cleaned in the same RUN layer, increasing image size.",
+                    description=(
+                        "apt cache not cleaned in the same "
+                        "RUN layer, increasing image size."
+                    ),
                     location=f"{filepath}:{instr.line_number}",
                     remediation=self.remediation,
                 ))

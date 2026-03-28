@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from prithvi.image.inspector import ImageMetadata, LayerInfo
+from prithvi.image.inspector import ImageMetadata
 from prithvi.models import Finding, Severity
 
 DEFAULT_MAX_LAYER_MB = 100
@@ -22,9 +22,17 @@ def check_layer_sizes(metadata: ImageMetadata, max_mb: int = DEFAULT_MAX_LAYER_M
                 rule_id="IMG-001",
                 title="Oversized layer",
                 severity=Severity.LOW,
-                description=f"Layer {layer.digest[:12]} is {size_mb:.1f}MB (threshold: {max_mb}MB).",
+                description=(
+                    f"Layer {layer.digest[:12]} is "
+                    f"{size_mb:.1f}MB (threshold: "
+                    f"{max_mb}MB)."
+                ),
                 location=f"{metadata.name}:{layer.digest[:12]}",
-                remediation="Combine commands in a single RUN to reduce layer size, or use multi-stage builds.",
+                remediation=(
+                    "Combine commands in a single RUN to "
+                    "reduce layer size, or use "
+                    "multi-stage builds."
+                ),
             ))
 
     return findings
@@ -49,7 +57,8 @@ def check_env_secrets(metadata: ImageMetadata) -> list[Finding]:
     import re
 
     secret_pattern = re.compile(
-        r"(password|passwd|secret|token|api_key|apikey|access_key|private_key|credentials)",
+        r"(password|passwd|secret|token|api_key|"
+        r"apikey|access_key|private_key|credentials)",
         re.IGNORECASE,
     )
     findings: list[Finding] = []
@@ -61,7 +70,11 @@ def check_env_secrets(metadata: ImageMetadata) -> list[Finding]:
                 rule_id="IMG-003",
                 title="Potential secret in image environment",
                 severity=Severity.CRITICAL,
-                description=f"Environment variable '{key}' may contain a secret baked into the image.",
+                description=(
+                    f"Environment variable '{key}' may "
+                    f"contain a secret baked into "
+                    f"the image."
+                ),
                 location=metadata.name,
                 remediation="Use runtime environment injection or Docker secrets instead.",
             ))

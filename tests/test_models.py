@@ -46,7 +46,7 @@ class TestFinding:
         )
         try:
             f.rule_id = "CHANGED"
-            assert False, "Should not allow mutation"
+            raise AssertionError("Should not allow mutation")
         except AttributeError:
             pass
 

@@ -85,7 +85,10 @@ def scan_dockerfile(
 
 @scan.command("image")
 @click.argument("target")
-@click.option("--format", "-f", "output_format", type=click.Choice(["table", "json", "html"]), default="table")
+@click.option(
+    "--format", "-f", "output_format",
+    type=click.Choice(["table", "json", "html"]), default="table",
+)
 @click.option("--output", "-o", type=click.Path(), default=None)
 def scan_image(target: str, output_format: str, output: str | None) -> None:
     """Scan a container image for vulnerabilities."""

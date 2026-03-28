@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 import tarfile
 import tempfile
 from dataclasses import dataclass

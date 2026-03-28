@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import re
-
 from prithvi.dockerfile.parser import Instruction
 from prithvi.dockerfile.rules.base import BaseRule
 from prithvi.models import Finding, Severity

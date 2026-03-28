@@ -2,6 +2,7 @@
 
 import pytest
 from click.testing import CliRunner
+
 from prithvi.cli import main
 
 
@@ -38,16 +39,29 @@ class TestCLI:
 
     def test_scan_dockerfile_json(self, runner, tmp_path):
         dockerfile = tmp_path / "Dockerfile"
-        dockerfile.write_text("FROM python:3.12-slim\nUSER app\nHEALTHCHECK CMD true\nCMD ['python']\n")
-        result = runner.invoke(main, ["scan", "dockerfile", str(dockerfile), "-f", "json"])
+        dockerfile.write_text(
+            "FROM python:3.12-slim\nUSER app\n"
+            "HEALTHCHECK CMD true\nCMD ['python']\n"
+        )
+        result = runner.invoke(
+            main,
+            ["scan", "dockerfile", str(dockerfile), "-f", "json"],
+        )
         assert result.exit_code == 0
         assert '"scan_type": "dockerfile"' in result.output
 
     def test_scan_dockerfile_output_file(self, runner, tmp_path):
         dockerfile = tmp_path / "Dockerfile"
-        dockerfile.write_text("FROM python:3.12-slim\nUSER app\nHEALTHCHECK CMD true\nCMD ['python']\n")
+        dockerfile.write_text(
+            "FROM python:3.12-slim\nUSER app\n"
+            "HEALTHCHECK CMD true\nCMD ['python']\n"
+        )
         out = tmp_path / "report.json"
-        result = runner.invoke(main, ["scan", "dockerfile", str(dockerfile), "-f", "json", "-o", str(out)])
+        result = runner.invoke(
+            main,
+            ["scan", "dockerfile", str(dockerfile),
+             "-f", "json", "-o", str(out)],
+        )
         assert result.exit_code == 0
         assert out.exists()
 

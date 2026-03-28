@@ -15,7 +15,11 @@ class HealthcheckRule(BaseRule):
         "No HEALTHCHECK instruction found. Without a health check, Docker and orchestrators "
         "cannot automatically detect if the application inside the container is healthy."
     )
-    remediation = "Add a HEALTHCHECK instruction (e.g., HEALTHCHECK CMD curl -f http://localhost/ || exit 1)."
+    remediation = (
+        "Add a HEALTHCHECK instruction "
+        "(e.g., HEALTHCHECK CMD curl -f "
+        "http://localhost/ || exit 1)."
+    )
 
     def check(self, instructions: list[Instruction], filepath: str = "Dockerfile") -> list[Finding]:
         has_healthcheck = any(i.keyword == "HEALTHCHECK" for i in instructions)

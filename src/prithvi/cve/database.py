@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import sqlite3
-from pathlib import Path
 from dataclasses import dataclass
-
+from pathlib import Path
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS cve (
@@ -76,14 +75,23 @@ class CVEDatabase:
         """Insert a CVE and its affected packages."""
         conn = self._connect()
         conn.execute(
-            "INSERT OR REPLACE INTO cve (cve_id, severity, description, published) VALUES (?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO cve "
+            "(cve_id, severity, description, published) "
+            "VALUES (?, ?, ?, ?)",
             (cve_id, severity, description, published),
         )
         for pkg in affected:
             conn.execute(
-                "INSERT INTO affected_packages (cve_id, package_name, version_start, version_end, ecosystem) "
+                "INSERT INTO affected_packages "
+                "(cve_id, package_name, version_start, "
+                "version_end, ecosystem) "
                 "VALUES (?, ?, ?, ?, ?)",
-                (cve_id, pkg["name"], pkg.get("version_start"), pkg.get("version_end"), pkg["ecosystem"]),
+                (
+                    cve_id, pkg["name"],
+                    pkg.get("version_start"),
+                    pkg.get("version_end"),
+                    pkg["ecosystem"],
+                ),
             )
         conn.commit()
 

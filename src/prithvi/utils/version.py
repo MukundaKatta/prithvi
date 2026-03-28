@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from packaging.version import Version, InvalidVersion
+from packaging.version import InvalidVersion, Version
 
 
 def is_version_in_range(

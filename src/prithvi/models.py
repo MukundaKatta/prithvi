@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     """Severity levels for security findings."""
 
     CRITICAL = "CRITICAL"
@@ -67,7 +67,7 @@ class ScanResult:
     target: str
     scan_type: str
     findings: list[Finding] = field(default_factory=list)
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     finished_at: datetime | None = None
     metadata: dict[str, str] = field(default_factory=dict)
 
@@ -93,4 +93,4 @@ class ScanResult:
 
     def complete(self) -> None:
         """Mark the scan as completed."""
-        self.finished_at = datetime.now(timezone.utc)
+        self.finished_at = datetime.now(UTC)

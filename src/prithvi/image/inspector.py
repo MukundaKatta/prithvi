@@ -104,17 +104,19 @@ def inspect_daemon(image_name: str) -> ImageMetadata:
     """
     try:
         import docker
-    except ImportError:
+    except ImportError as err:
         raise RuntimeError(
             "Docker Python package is required for daemon mode. "
             "Install with: pip install prithvi[image]"
-        )
+        ) from err
 
     client = docker.from_env()
     try:
         image = client.images.get(image_name)
-    except docker.errors.ImageNotFound:
-        raise ValueError(f"Image not found: {image_name}")
+    except docker.errors.ImageNotFound as err:
+        raise ValueError(
+            f"Image not found: {image_name}"
+        ) from err
 
     attrs = image.attrs
     config = attrs.get("Config", {})

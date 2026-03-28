@@ -1,6 +1,7 @@
 """Tests for JSON reporter."""
 
 import json
+
 from prithvi.models import Finding, ScanResult, Severity
 from prithvi.reporting.json_reporter import JsonReporter
 

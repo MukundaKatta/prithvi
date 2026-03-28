@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from prithvi.reporting.html_reporter import HtmlReporter
 from prithvi.reporting.json_reporter import JsonReporter
 from prithvi.reporting.table_reporter import TableReporter
-from prithvi.reporting.html_reporter import HtmlReporter
 
 REPORTERS = {
     "json": JsonReporter,

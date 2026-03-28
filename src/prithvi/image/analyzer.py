@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from prithvi.image.inspector import inspect_tarball, inspect_daemon
-from prithvi.image.layer import check_layer_sizes, check_running_as_root, check_env_secrets
+from prithvi.image.inspector import inspect_daemon, inspect_tarball
+from prithvi.image.layer import check_env_secrets, check_layer_sizes, check_running_as_root
 from prithvi.models import ScanResult
 
 

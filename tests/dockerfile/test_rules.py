@@ -1,14 +1,13 @@
 """Tests for individual Dockerfile security rules."""
 
-import pytest
 from prithvi.dockerfile.parser import parse_dockerfile
-from prithvi.dockerfile.rules.user import NoRootUserRule
-from prithvi.dockerfile.rules.tags import PinnedTagRule
-from prithvi.dockerfile.rules.secrets import NoSecretsInEnvRule
-from prithvi.dockerfile.rules.ports import PrivilegedPortRule
 from prithvi.dockerfile.rules.apt import AptBestPracticesRule
 from prithvi.dockerfile.rules.copy import NoBroadCopyRule
 from prithvi.dockerfile.rules.healthcheck import HealthcheckRule
+from prithvi.dockerfile.rules.ports import PrivilegedPortRule
+from prithvi.dockerfile.rules.secrets import NoSecretsInEnvRule
+from prithvi.dockerfile.rules.tags import PinnedTagRule
+from prithvi.dockerfile.rules.user import NoRootUserRule
 
 
 class TestNoRootUserRule:
@@ -169,6 +168,10 @@ class TestHealthcheckRule:
         assert len(findings) == 1
 
     def test_has_healthcheck(self):
-        instructions = parse_dockerfile("FROM alpine\nHEALTHCHECK CMD curl -f http://localhost/\nCMD ['sh']\n")
+        instructions = parse_dockerfile(
+            "FROM alpine\n"
+            "HEALTHCHECK CMD curl -f http://localhost/\n"
+            "CMD ['sh']\n"
+        )
         findings = self.rule.check(instructions)
         assert len(findings) == 0

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+
 from prithvi.models import ScanResult
 from prithvi.reporting.base import BaseReporter
 
