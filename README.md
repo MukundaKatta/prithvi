@@ -1,56 +1,30 @@
-# 🔱 Prithvi — Container Security Scanner
+# prithvi — Container Security Scanner. Container security scanner
 
-> **Hindu Mythology**: Earth Goddess | Container security scanner
+*पृथ्वी — the earth.*
 
-[![GitHub Pages](https://img.shields.io/badge/🌐_Live_Demo-Visit_Site-blue?style=for-the-badge)](https://MukundaKatta.github.io/prithvi/)
-[![GitHub](https://img.shields.io/github/license/MukundaKatta/prithvi?style=flat-square)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/MukundaKatta/prithvi?style=flat-square)](https://github.com/MukundaKatta/prithvi/stargazers)
+prithvi takes its name in that spirit. Container Security Scanner. Container security scanner.
 
-## 🚀 Overview
+## Why prithvi
 
-Container security scanner
+prithvi exists to make this workflow practical. Container security scanner. container security scanner. It favours a small, inspectable surface over sprawling configuration.
 
-**Tech Stack:** Go, Python
+## How It Works
 
-## 📦 Quick Start
+The code is organised as a focused, single-purpose module with a clear entry point and minimal ceremony.
 
-```bash
-git clone https://github.com/MukundaKatta/prithvi.git
-cd prithvi
-# Follow setup instructions below
-```
+## Getting Started
 
-## 🏗️ Project Structure
+Clone the repository and inspect the source to see how to run it.
+
+## Usage
+
+See the source files and entry points for concrete usage patterns.
+
+## Project Structure
 
 ```
 prithvi/
-├── README.md
-├── LICENSE
 ├── CLAUDE.md
-├── .gitignore
-├── src/
-│   ├── main.py
-│   ├── config.py
-│   └── utils.py
-├── tests/
-│   └── test_main.py
-├── docs/
-│   └── architecture.md
-├── examples/
-│   └── basic_usage.py
-└── .github/
-    └── workflows/
-        └── static.yml
+├── LICENSE
+├── README.md
 ```
-
-## 🌐 Live Demo
-
-Visit the landing page: **https://MukundaKatta.github.io/prithvi/**
-
-## 📄 License
-
-MIT License — © 2026 Officethree Technologies
-
-## 🔱 Part of the Mythological Portfolio
-
-This is project **#prithvi** in the [100-project Mythological Portfolio](https://github.com/MukundaKatta) by Officethree Technologies.
