@@ -62,6 +62,11 @@ hygiene on every change.
 | PR005 | low/med  | `ADD` used where `COPY` would do (and `ADD <url>` for fetches) |
 | PR006 | critical | Hard-coded password / API key / token in `ENV`/`ARG`/`RUN`   |
 | PR007 | medium   | `sudo` inside a `RUN` — the builder is already root          |
+| PR008 | low      | Relative `WORKDIR` — depends on previous WORKDIR             |
+| PR009 | high     | `chmod 777` / `chmod a+rwx` in a `RUN`                       |
+| PR010 | info     | Image declares `EXPOSE`/`CMD`/`ENTRYPOINT` but no `HEALTHCHECK` |
+| PR011 | medium   | `apt-get install` without `-y` will block the build          |
+| PR012 | low      | `pip install` without `--no-cache-dir` bloats the layer      |
 
 Every rule ships with a concrete fix in the `hint:` line.
 

@@ -221,6 +221,81 @@ def _rule_privileged_sudo(instrs: List[Instruction]) -> Iterable[Finding]:
             )
 
 
+def _rule_relative_workdir(instrs: List[Instruction]) -> Iterable[Finding]:
+    for ins in instrs:
+        if ins.cmd != "WORKDIR":
+            continue
+        path = ins.args.strip().strip('"').strip("'")
+        if path and not path.startswith("/") and not path.startswith("$"):
+            yield Finding(
+                rule_id="PR008",
+                severity=Severity.LOW,
+                line=ins.line,
+                message=f"WORKDIR {path!r} is relative — depends on the previous WORKDIR",
+                hint="Use an absolute path so layer order can't change behaviour.",
+            )
+
+
+def _rule_chmod_777(instrs: List[Instruction]) -> Iterable[Finding]:
+    pat = re.compile(r"\bchmod\s+(?:-[Rr]\s+)?(?:0?777|a\+rwx)\b")
+    for ins in instrs:
+        if ins.cmd != "RUN":
+            continue
+        if pat.search(ins.args):
+            yield Finding(
+                rule_id="PR009",
+                severity=Severity.HIGH,
+                line=ins.line,
+                message="`chmod 777` (or `a+rwx`) gives world-write permission",
+                hint="Pick a tighter mode (e.g. 750 for dirs, 640 for files) and chown to the runtime user.",
+            )
+
+
+def _rule_missing_healthcheck(instrs: List[Instruction]) -> Iterable[Finding]:
+    if not any(i.cmd in ("EXPOSE", "CMD", "ENTRYPOINT") for i in instrs):
+        return
+    if any(i.cmd == "HEALTHCHECK" for i in instrs):
+        return
+    last = instrs[-1] if instrs else None
+    yield Finding(
+        rule_id="PR010",
+        severity=Severity.INFO,
+        line=last.line if last else 1,
+        message="Image declares EXPOSE/CMD/ENTRYPOINT but no HEALTHCHECK",
+        hint="Add `HEALTHCHECK CMD curl -fsS http://localhost:PORT/health || exit 1` so orchestrators can detect zombies.",
+    )
+
+
+def _rule_apt_get_install_no_y(instrs: List[Instruction]) -> Iterable[Finding]:
+    for ins in instrs:
+        if ins.cmd != "RUN":
+            continue
+        low = ins.args.lower()
+        if "apt-get install" in low and not re.search(r"-y\b|--yes\b|--assume-yes\b", low):
+            yield Finding(
+                rule_id="PR011",
+                severity=Severity.MEDIUM,
+                line=ins.line,
+                message="apt-get install without -y will block the build on the prompt",
+                hint="Add `-y` (or `--yes`) so non-interactive builds don't hang.",
+            )
+
+
+def _rule_pip_no_cache(instrs: List[Instruction]) -> Iterable[Finding]:
+    for ins in instrs:
+        if ins.cmd != "RUN":
+            continue
+        low = ins.args.lower()
+        if re.search(r"\bpip(?:3)?\s+install\b", low) and "--no-cache-dir" not in low:
+            yield Finding(
+                rule_id="PR012",
+                severity=Severity.LOW,
+                line=ins.line,
+                message="pip install without --no-cache-dir bloats the layer",
+                hint="Add `--no-cache-dir` so the wheel cache doesn't ship inside the image.",
+            )
+
+
 RULES: Tuple[RuleFn, ...] = (
     _rule_no_latest_tag,
     _rule_runs_as_root,
@@ -229,6 +304,11 @@ RULES: Tuple[RuleFn, ...] = (
     _rule_add_instead_of_copy,
     _rule_hardcoded_secret,
     _rule_privileged_sudo,
+    _rule_relative_workdir,
+    _rule_chmod_777,
+    _rule_missing_healthcheck,
+    _rule_apt_get_install_no_y,
+    _rule_pip_no_cache,
 )
 
 
