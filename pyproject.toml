@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "prithvi"
+version = "0.1.0"
+description = "Container security scanner — static analysis for Dockerfiles and image manifests."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Officethree Technologies", email = "hello@officethree.com" }]
+keywords = ["docker", "security", "scanner", "dockerfile", "container"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Security",
+    "Topic :: Software Development :: Build Tools",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+prithvi = "prithvi.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/MukundaKatta/prithvi"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/prithvi"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
