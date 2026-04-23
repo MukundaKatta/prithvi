@@ -93,7 +93,10 @@ def _rule_no_latest_tag(instrs: List[Instruction]) -> Iterable[Finding]:
     for ins in instrs:
         if ins.cmd != "FROM":
             continue
-        image = ins.args.split()[0]
+        tokens = ins.args.split()
+        image = next((t for t in tokens if not t.startswith("--")), "")
+        if not image:
+            continue
         if ":" not in image and "@" not in image:
             yield Finding(
                 rule_id="PR001",
@@ -117,7 +120,8 @@ def _rule_runs_as_root(instrs: List[Instruction]) -> Iterable[Finding]:
     last_user_line = 0
     for ins in instrs:
         if ins.cmd == "USER":
-            user_set = ins.args.strip() not in ("root", "0")
+            user_name = ins.args.strip().lower().split(":")[0]
+            user_set = user_name not in ("root", "0")
             last_user_line = ins.line
     if not user_set:
         yield Finding(
