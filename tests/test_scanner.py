@@ -171,3 +171,30 @@ def test_pip_install_with_no_cache_dir_is_fine() -> None:
     src = "FROM python:3.12\nRUN pip install --no-cache-dir requests\nUSER app"
     findings = _scan(src)
     assert not any(f.rule_id == "PR012" for f in findings)
+
+
+# Bug fixes
+# --------------------------------------------------------------------------
+
+
+def test_from_platform_flag_not_flagged_as_missing_tag() -> None:
+    """FROM --platform=linux/amd64 should not trigger PR001 for the flag token."""
+    findings = _scan("FROM --platform=linux/amd64 python:3.12\nUSER app")
+    assert not any(f.rule_id == "PR001" for f in findings)
+
+
+def test_from_platform_flag_still_catches_latest() -> None:
+    findings = _scan("FROM --platform=linux/amd64 python:latest\nUSER app")
+    assert any(f.rule_id == "PR001" for f in findings)
+
+
+def test_user_root_colon_group_is_flagged() -> None:
+    """USER root:root should still be flagged as running as root."""
+    findings = _scan("FROM python:3.12\nUSER root:root")
+    assert any(f.rule_id == "PR002" for f in findings)
+
+
+def test_user_zero_colon_group_is_flagged() -> None:
+    """USER 0:0 (numeric root with group) should still be flagged."""
+    findings = _scan("FROM python:3.12\nUSER 0:0")
+    assert any(f.rule_id == "PR002" for f in findings)
