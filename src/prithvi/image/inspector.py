@@ -58,9 +58,12 @@ def inspect_tarball(tar_path: str | Path) -> ImageMetadata:
             raise ValueError("Invalid Docker image tarball: missing manifest.json")
 
         manifest = json.loads(manifest_path.read_text())
+        if not manifest:
+            raise ValueError("Invalid Docker image tarball: empty manifest")
+
         config_file = manifest[0].get("Config", "")
-        layer_paths = manifest[0].get("Layers", [])
-        repo_tags = manifest[0].get("RepoTags", [])
+        layer_paths = manifest[0].get("Layers") or []
+        repo_tags = manifest[0].get("RepoTags") or []
 
         name = repo_tags[0] if repo_tags else tar_path.stem
 

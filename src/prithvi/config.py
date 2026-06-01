@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -26,7 +27,8 @@ class Config:
         if threshold := os.environ.get("PRITHVI_SEVERITY_THRESHOLD"):
             kwargs["severity_threshold"] = Severity(threshold.upper())
         if max_layer := os.environ.get("PRITHVI_MAX_LAYER_SIZE_MB"):
-            kwargs["max_layer_size_mb"] = int(max_layer)
+            with contextlib.suppress(ValueError):
+                kwargs["max_layer_size_mb"] = int(max_layer)
         if data_dir := os.environ.get("PRITHVI_DATA_DIR"):
             kwargs["data_dir"] = Path(data_dir)
         if fmt := os.environ.get("PRITHVI_OUTPUT_FORMAT"):

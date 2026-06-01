@@ -81,8 +81,13 @@ class TestCLI:
     def test_scan_dockerfile_severity_threshold(self, runner, tmp_path):
         dockerfile = tmp_path / "Dockerfile"
         dockerfile.write_text("FROM python:latest\nCMD ['python']\n")
+        # HIGH threshold: DSC-001 (HIGH) remains, so exit 1
+        result = runner.invoke(main, [
+            "scan", "dockerfile", str(dockerfile), "-s", "HIGH"
+        ])
+        assert result.exit_code == 1
+        # CRITICAL threshold: no CRITICAL findings, so exit 0
         result = runner.invoke(main, [
             "scan", "dockerfile", str(dockerfile), "-s", "CRITICAL"
         ])
-        # Only CRITICAL findings shown, so no HIGH+ exit code
         assert result.exit_code == 0

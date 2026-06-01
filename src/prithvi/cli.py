@@ -78,8 +78,8 @@ def scan_dockerfile(
     else:
         click.echo(report)
 
-    # Exit with non-zero if findings above threshold
-    if result.has_high_or_above:
+    # Exit with non-zero if any findings remain after threshold filtering
+    if result.findings:
         sys.exit(1)
 
 
@@ -90,12 +90,26 @@ def scan_dockerfile(
     type=click.Choice(["table", "json", "html"]), default="table",
 )
 @click.option("--output", "-o", type=click.Path(), default=None)
-def scan_image(target: str, output_format: str, output: str | None) -> None:
+@click.option(
+    "--severity-threshold", "-s",
+    type=click.Choice([s.value for s in Severity], case_sensitive=False),
+    default="LOW",
+    help="Minimum severity to report.",
+)
+def scan_image(
+    target: str,
+    output_format: str,
+    output: str | None,
+    severity_threshold: str,
+) -> None:
     """Scan a container image for vulnerabilities."""
     from prithvi.image.analyzer import analyze_image
     from prithvi.reporting import get_reporter
 
     result = analyze_image(target)
+    threshold = Severity(severity_threshold.upper())
+
+    result.findings = [f for f in result.findings if f.severity >= threshold]
 
     reporter = get_reporter(output_format)
     report = reporter.render(result)
@@ -106,7 +120,7 @@ def scan_image(target: str, output_format: str, output: str | None) -> None:
     else:
         click.echo(report)
 
-    if result.has_high_or_above:
+    if result.findings:
         sys.exit(1)
 
 

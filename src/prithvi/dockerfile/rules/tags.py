@@ -24,7 +24,10 @@ class PinnedTagRule(BaseRule):
             if instr.keyword != "FROM":
                 continue
 
-            image = instr.arguments.split()[0]  # handle "FROM image AS builder"
+            parts = instr.arguments.split()
+            if not parts:
+                continue
+            image = parts[0]  # handle "FROM image AS builder"
 
             # Skip scratch and ARG-based images
             if image == "scratch" or image.startswith("$"):

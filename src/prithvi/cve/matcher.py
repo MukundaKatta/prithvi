@@ -28,24 +28,46 @@ def match_packages(
     Returns:
         List of findings for vulnerable packages.
     """
-    if db is None:
+    owns_db = db is None
+    if owns_db:
         db = CVEDatabase()
 
+    try:
+        return _do_match(packages, db)
+    finally:
+        if owns_db:
+            db.close()
+
+
+def _do_match(
+    packages: list[InstalledPackage],
+    db: CVEDatabase,
+) -> list[Finding]:
     findings: list[Finding] = []
 
     for pkg in packages:
         records = db.lookup(pkg.name, pkg.ecosystem)
 
         for record in records:
-            if is_version_in_range(pkg.version, record.version_start, record.version_end):
-                severity = SEVERITY_MAP.get(record.severity.upper(), Severity.MEDIUM)
+            if is_version_in_range(
+                pkg.version, record.version_start, record.version_end
+            ):
+                severity = SEVERITY_MAP.get(
+                    record.severity.upper(), Severity.MEDIUM
+                )
                 findings.append(Finding(
                     rule_id=record.cve_id,
                     title=f"Vulnerable package: {pkg.name} {pkg.version}",
                     severity=severity,
-                    description=record.description or f"{record.cve_id} affects {pkg.name}",
+                    description=(
+                        record.description
+                        or f"{record.cve_id} affects {pkg.name}"
+                    ),
                     location=f"{pkg.name}@{pkg.version} ({pkg.ecosystem})",
-                    remediation=f"Upgrade {pkg.name} to a version not affected by {record.cve_id}.",
+                    remediation=(
+                        f"Upgrade {pkg.name} to a version "
+                        f"not affected by {record.cve_id}."
+                    ),
                 ))
 
     return findings

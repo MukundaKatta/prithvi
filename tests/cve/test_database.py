@@ -55,5 +55,15 @@ class TestCVEDatabase:
             [{"name": "pkg", "ecosystem": "deb"}],
         )
         records = db.lookup("pkg", "deb")
-        # Should have 2 affected_packages entries (not deduped by design)
-        assert len(records) == 2
+        # Upsert replaces old entries cleanly
+        assert len(records) == 1
+        assert records[0].severity == "CRITICAL"
+
+    def test_context_manager(self, tmp_path):
+        with CVEDatabase(db_path=tmp_path / "ctx.db") as db:
+            db.insert_cve(
+                "CVE-2024-0001", "HIGH", "test",
+                "2024-01-01",
+                [{"name": "pkg", "ecosystem": "deb"}],
+            )
+            assert db.cve_count == 1

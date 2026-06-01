@@ -64,6 +64,12 @@ class CVEDatabase:
             self._conn.close()
             self._conn = None
 
+    def __enter__(self) -> CVEDatabase:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        self.close()
+
     def insert_cve(
         self,
         cve_id: str,
@@ -79,6 +85,11 @@ class CVEDatabase:
             "(cve_id, severity, description, published) "
             "VALUES (?, ?, ?, ?)",
             (cve_id, severity, description, published),
+        )
+        # Remove old entries to prevent stale accumulation on upsert
+        conn.execute(
+            "DELETE FROM affected_packages WHERE cve_id = ?",
+            (cve_id,),
         )
         for pkg in affected:
             conn.execute(

@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import re
+
 from prithvi.image.inspector import ImageMetadata
 from prithvi.models import Finding, Severity
 
 DEFAULT_MAX_LAYER_MB = 100
 
-DANGEROUS_BINARIES = {"curl", "wget", "nc", "ncat", "netcat", "telnet", "nmap"}
+_SECRET_PATTERN = re.compile(
+    r"(password|passwd|secret|token|api_key|"
+    r"apikey|access_key|private_key|credentials)",
+    re.IGNORECASE,
+)
 
 
 def check_layer_sizes(metadata: ImageMetadata, max_mb: int = DEFAULT_MAX_LAYER_MB) -> list[Finding]:
@@ -54,18 +60,11 @@ def check_running_as_root(metadata: ImageMetadata) -> list[Finding]:
 
 def check_env_secrets(metadata: ImageMetadata) -> list[Finding]:
     """Check for potential secrets in environment variables."""
-    import re
-
-    secret_pattern = re.compile(
-        r"(password|passwd|secret|token|api_key|"
-        r"apikey|access_key|private_key|credentials)",
-        re.IGNORECASE,
-    )
     findings: list[Finding] = []
 
     for env in metadata.env_vars:
         key = env.split("=")[0]
-        if secret_pattern.search(key):
+        if _SECRET_PATTERN.search(key):
             findings.append(Finding(
                 rule_id="IMG-003",
                 title="Potential secret in image environment",

@@ -93,6 +93,17 @@ class TestNoSecretsInEnvRule:
         findings = self.rule.check(instructions)
         assert len(findings) == 2
 
+    def test_multi_var_env_detects_second_secret(self):
+        instructions = parse_dockerfile("ENV SAFE_VAR=hello API_KEY=secret\n")
+        findings = self.rule.check(instructions)
+        assert len(findings) == 1
+        assert "API_KEY" in findings[0].description
+
+    def test_arg_without_value(self):
+        instructions = parse_dockerfile("ARG DB_PASSWORD\n")
+        findings = self.rule.check(instructions)
+        assert len(findings) == 1
+
 
 class TestPrivilegedPortRule:
     rule = PrivilegedPortRule()
