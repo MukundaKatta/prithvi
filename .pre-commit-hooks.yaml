@@ -1,0 +1,7 @@
+- id: prithvi-dockerfile
+  name: Prithvi Dockerfile Security Scan
+  description: Scan Dockerfiles for security issues
+  entry: prithvi scan dockerfile
+  language: python
+  files: (Dockerfile|\.dockerfile)$
+  types: [file]

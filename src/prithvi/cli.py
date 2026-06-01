@@ -11,13 +11,28 @@ from prithvi import __version__
 from prithvi.models import Severity
 
 
+def _quiet_summary(result) -> str:
+    """Build a one-line quiet-mode summary string."""
+    total = len(result.findings)
+    if total == 0:
+        return "PASS: 0 findings"
+    counts = result.severity_counts
+    parts = [
+        f"{v} {k}"
+        for k, v in counts.items()
+        if v > 0
+    ]
+    detail = ", ".join(parts)
+    return f"FAIL: {total} findings ({detail})"
+
+
 @click.group()
 @click.version_option(version=__version__, prog_name="prithvi")
 def main() -> None:
     """Prithvi - Container Security Scanner.
 
-    Analyze Dockerfiles and container images for security vulnerabilities
-    and best-practice violations.
+    Analyze Dockerfiles and container images for
+    security vulnerabilities and best-practice violations.
     """
 
 
@@ -27,11 +42,11 @@ def scan() -> None:
 
 
 @scan.command("dockerfile")
-@click.argument("path", type=click.Path(exists=True))
+@click.argument("path", type=click.Path())
 @click.option(
     "--format", "-f",
     "output_format",
-    type=click.Choice(["table", "json", "html"]),
+    type=click.Choice(["table", "json", "html", "sarif"]),
     default="table",
     help="Output format.",
 )
@@ -43,7 +58,10 @@ def scan() -> None:
 )
 @click.option(
     "--severity-threshold", "-s",
-    type=click.Choice([s.value for s in Severity], case_sensitive=False),
+    type=click.Choice(
+        [s.value for s in Severity],
+        case_sensitive=False,
+    ),
     default="LOW",
     help="Minimum severity to report.",
 )
@@ -52,33 +70,60 @@ def scan() -> None:
     multiple=True,
     help="Rule IDs to ignore (can be repeated).",
 )
+@click.option(
+    "--quiet", "-q",
+    is_flag=True,
+    default=False,
+    help="Only print a one-line pass/fail summary.",
+)
 def scan_dockerfile(
     path: str,
     output_format: str,
     output: str | None,
     severity_threshold: str,
     ignore: tuple[str, ...],
+    quiet: bool,
 ) -> None:
     """Scan a Dockerfile for security issues."""
-    from prithvi.dockerfile.analyzer import analyze_dockerfile
+    from prithvi.dockerfile.analyzer import (
+        analyze_dockerfile,
+        analyze_dockerfile_content,
+    )
     from prithvi.reporting import get_reporter
 
-    result = analyze_dockerfile(path, ignore_rules=list(ignore))
+    if path == "-":
+        content = sys.stdin.read()
+        result = analyze_dockerfile_content(
+            content, name="<stdin>", ignore_rules=list(ignore),
+        )
+    else:
+        real = Path(path)
+        if not real.exists():
+            raise click.BadParameter(
+                f"Path '{path}' does not exist.",
+                param_hint="'PATH'",
+            )
+        result = analyze_dockerfile(
+            path, ignore_rules=list(ignore),
+        )
+
     threshold = Severity(severity_threshold.upper())
 
-    # Filter by threshold
-    result.findings = [f for f in result.findings if f.severity >= threshold]
+    result.findings = [
+        f for f in result.findings if f.severity >= threshold
+    ]
 
-    reporter = get_reporter(output_format)
-    report = reporter.render(result)
-
-    if output:
-        Path(output).write_text(report)
-        click.echo(f"Report written to {output}")
+    if quiet:
+        click.echo(_quiet_summary(result))
     else:
-        click.echo(report)
+        reporter = get_reporter(output_format)
+        report = reporter.render(result)
+        if output:
+            Path(output).write_text(report)
+            click.echo(f"Report written to {output}")
+        else:
+            click.echo(report)
 
-    # Exit with non-zero if any findings remain after threshold filtering
     if result.findings:
         sys.exit(1)
 
@@ -87,20 +132,35 @@ def scan_dockerfile(
 @click.argument("target")
 @click.option(
     "--format", "-f", "output_format",
-    type=click.Choice(["table", "json", "html"]), default="table",
+    type=click.Choice(["table", "json", "html", "sarif"]),
+    default="table",
 )
-@click.option("--output", "-o", type=click.Path(), default=None)
+@click.option(
+    "--output", "-o",
+    type=click.Path(),
+    default=None,
+)
 @click.option(
     "--severity-threshold", "-s",
-    type=click.Choice([s.value for s in Severity], case_sensitive=False),
+    type=click.Choice(
+        [s.value for s in Severity],
+        case_sensitive=False,
+    ),
     default="LOW",
     help="Minimum severity to report.",
+)
+@click.option(
+    "--quiet", "-q",
+    is_flag=True,
+    default=False,
+    help="Only print a one-line pass/fail summary.",
 )
 def scan_image(
     target: str,
     output_format: str,
     output: str | None,
     severity_threshold: str,
+    quiet: bool,
 ) -> None:
     """Scan a container image for vulnerabilities."""
     from prithvi.image.analyzer import analyze_image
@@ -109,16 +169,20 @@ def scan_image(
     result = analyze_image(target)
     threshold = Severity(severity_threshold.upper())
 
-    result.findings = [f for f in result.findings if f.severity >= threshold]
+    result.findings = [
+        f for f in result.findings if f.severity >= threshold
+    ]
 
-    reporter = get_reporter(output_format)
-    report = reporter.render(result)
-
-    if output:
-        Path(output).write_text(report)
-        click.echo(f"Report written to {output}")
+    if quiet:
+        click.echo(_quiet_summary(result))
     else:
-        click.echo(report)
+        reporter = get_reporter(output_format)
+        report = reporter.render(result)
+        if output:
+            Path(output).write_text(report)
+            click.echo(f"Report written to {output}")
+        else:
+            click.echo(report)
 
     if result.findings:
         sys.exit(1)

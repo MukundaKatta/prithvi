@@ -88,8 +88,39 @@ class ScanResult:
         return any(f.severity >= Severity.HIGH for f in self.findings)
 
     def findings_above(self, threshold: Severity) -> list[Finding]:
-        """Return findings at or above the given severity threshold."""
-        return [f for f in self.findings if f.severity >= threshold]
+        """Return findings at or above the given severity."""
+        return [
+            f for f in self.findings if f.severity >= threshold
+        ]
+
+    @property
+    def grade(self) -> str:
+        """Letter grade based on worst finding severity."""
+        if not self.findings:
+            return "A"
+        worst = max(f.severity for f in self.findings)
+        if worst == Severity.CRITICAL:
+            return "F"
+        if worst == Severity.HIGH:
+            return "D"
+        if worst == Severity.MEDIUM:
+            return "C"
+        return "B"  # LOW or INFO only
+
+    @property
+    def score(self) -> int:
+        """Numeric score (0-100) based on findings."""
+        penalties = {
+            Severity.CRITICAL: 25,
+            Severity.HIGH: 15,
+            Severity.MEDIUM: 8,
+            Severity.LOW: 3,
+            Severity.INFO: 1,
+        }
+        total = 100
+        for f in self.findings:
+            total -= penalties[f.severity]
+        return max(total, 0)
 
     def complete(self) -> None:
         """Mark the scan as completed."""

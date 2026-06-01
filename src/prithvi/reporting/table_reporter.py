@@ -29,8 +29,16 @@ class TableReporter(BaseReporter):
 
         # Header
         console.print()
-        console.print(f"[bold]Prithvi Scan Report[/bold] - {result.target}")
-        console.print(f"Type: {result.scan_type} | Findings: {len(result.findings)}")
+        console.print(
+            f"[bold]Prithvi Scan Report[/bold]"
+            f" - {result.target}"
+        )
+        console.print(
+            f"Type: {result.scan_type}"
+            f" | Findings: {len(result.findings)}"
+            f" | Grade: {result.grade}"
+            f" | Score: {result.score}/100"
+        )
 
         # Summary bar
         counts = result.severity_counts

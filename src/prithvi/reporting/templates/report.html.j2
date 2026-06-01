@@ -31,12 +31,33 @@
         .badge-INFO { background: #1e293b; color: #64748b; }
         .remediation { font-size: 0.8rem; color: #94a3b8; margin-top: 0.3rem; }
         .footer { margin-top: 2rem; text-align: center; color: #475569; font-size: 0.85rem; }
+        .grade-badge {
+            display: inline-flex; align-items: center;
+            justify-content: center;
+            width: 3rem; height: 3rem;
+            border-radius: 50%;
+            font-size: 1.5rem; font-weight: 700;
+            margin-right: 0.75rem;
+            vertical-align: middle;
+        }
+        .grade-A { background: #065f46; color: #34d399; }
+        .grade-B { background: #164e63; color: #22d3ee; }
+        .grade-C { background: #422006; color: #eab308; }
+        .grade-D { background: #431407; color: #f97316; }
+        .grade-F { background: #450a0a; color: #ef4444; }
+        .grade-row { display: flex; align-items: center; margin-bottom: 1.5rem; }
+        .grade-info { font-size: 0.95rem; color: #94a3b8; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Prithvi Scan Report</h1>
         <p class="subtitle">Target: {{ result.target }} | Type: {{ result.scan_type }} | Findings: {{ total }}</p>
+
+        <div class="grade-row">
+            <span class="grade-badge grade-{{ result.grade }}">{{ result.grade }}</span>
+            <span class="grade-info">Score: {{ result.score }} / 100</span>
+        </div>
 
         <div class="summary">
             {% for sev in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'] %}

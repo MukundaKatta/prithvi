@@ -1,0 +1,44 @@
+name: 'Prithvi Container Security Scanner'
+description: 'Scan Dockerfiles for security vulnerabilities and best practices'
+inputs:
+  dockerfile:
+    description: 'Path to Dockerfile to scan'
+    required: false
+    default: './Dockerfile'
+  severity-threshold:
+    description: 'Minimum severity to report (CRITICAL, HIGH, MEDIUM, LOW, INFO)'
+    required: false
+    default: 'LOW'
+  format:
+    description: 'Output format (table, json, html, sarif)'
+    required: false
+    default: 'table'
+  ignore-rules:
+    description: 'Comma-separated list of rule IDs to ignore'
+    required: false
+    default: ''
+  fail-on:
+    description: 'Fail if findings at or above this severity exist'
+    required: false
+    default: 'HIGH'
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install Prithvi
+      shell: bash
+      run: pip install ${{ github.action_path }}
+    - name: Run scan
+      shell: bash
+      run: |
+        ARGS="scan dockerfile ${{ inputs.dockerfile }} --format ${{ inputs.format }} --severity-threshold ${{ inputs.severity-threshold }}"
+        if [ -n "${{ inputs.ignore-rules }}" ]; then
+          IFS=',' read -ra RULES <<< "${{ inputs.ignore-rules }}"
+          for rule in "${RULES[@]}"; do
+            ARGS="$ARGS --ignore $(echo $rule | xargs)"
+          done
+        fi
+        prithvi $ARGS

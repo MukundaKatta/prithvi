@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from prithvi.reporting.html_reporter import HtmlReporter
 from prithvi.reporting.json_reporter import JsonReporter
+from prithvi.reporting.sarif_reporter import SarifReporter
 from prithvi.reporting.table_reporter import TableReporter
 
 REPORTERS = {
     "json": JsonReporter,
     "table": TableReporter,
     "html": HtmlReporter,
+    "sarif": SarifReporter,
 }
 
 

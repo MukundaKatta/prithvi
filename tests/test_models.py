@@ -81,7 +81,86 @@ class TestScanResult:
         assert len(high_plus) == 2
 
     def test_complete(self):
-        result = ScanResult(target="test", scan_type="dockerfile")
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
         assert result.finished_at is None
         result.complete()
         assert result.finished_at is not None
+
+    def test_grade_a_no_findings(self):
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
+        assert result.grade == "A"
+
+    def test_grade_b_low_only(self):
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
+        result.findings = [
+            Finding("A", "a", Severity.LOW, "", "", ""),
+            Finding("B", "b", Severity.INFO, "", "", ""),
+        ]
+        assert result.grade == "B"
+
+    def test_grade_c_medium(self):
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
+        result.findings = [
+            Finding("A", "a", Severity.MEDIUM, "", "", ""),
+        ]
+        assert result.grade == "C"
+
+    def test_grade_d_high(self):
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
+        result.findings = [
+            Finding("A", "a", Severity.HIGH, "", "", ""),
+        ]
+        assert result.grade == "D"
+
+    def test_grade_f_critical(self):
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
+        result.findings = [
+            Finding("A", "a", Severity.CRITICAL, "", "", ""),
+        ]
+        assert result.grade == "F"
+
+    def test_score_perfect(self):
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
+        assert result.score == 100
+
+    def test_score_deductions(self):
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
+        result.findings = [
+            Finding("A", "a", Severity.CRITICAL, "", "", ""),
+            Finding("B", "b", Severity.HIGH, "", "", ""),
+            Finding("C", "c", Severity.MEDIUM, "", "", ""),
+            Finding("D", "d", Severity.LOW, "", "", ""),
+            Finding("E", "e", Severity.INFO, "", "", ""),
+        ]
+        # 100 - 25 - 15 - 8 - 3 - 1 = 48
+        assert result.score == 48
+
+    def test_score_floor_at_zero(self):
+        result = ScanResult(
+            target="test", scan_type="dockerfile",
+        )
+        result.findings = [
+            Finding(
+                f"C{i}", "c", Severity.CRITICAL,
+                "", "", "",
+            )
+            for i in range(10)
+        ]
+        # 100 - 10*25 = -150, floored to 0
+        assert result.score == 0
