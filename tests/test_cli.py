@@ -178,6 +178,7 @@ class TestStdinSupport:
                 "scan", "dockerfile", "-",
                 "-i", "DSC-001",
                 "-i", "DSC-002",
+                "-i", "DSC-003",
                 "-i", "DSC-007",
                 "-i", "DSC-012",
                 "-s", "MEDIUM",
@@ -243,8 +244,11 @@ class TestQuietMode:
     def test_quiet_with_threshold(
         self, runner, tmp_path,
     ):
+        # Dockerfile with HIGH but no CRITICAL findings
         dockerfile = tmp_path / "Dockerfile"
-        dockerfile.write_text(BAD_DOCKERFILE)
+        dockerfile.write_text(
+            "FROM python:latest\nCMD ['python']\n",
+        )
         result = runner.invoke(
             main,
             [
